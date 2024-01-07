@@ -1,4 +1,4 @@
-package com.dogan.android.app.geonames.quizapp
+package com.dogan.android.app.quizapp
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4

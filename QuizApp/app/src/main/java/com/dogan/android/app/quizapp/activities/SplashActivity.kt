@@ -1,9 +1,10 @@
-package com.dogan.android.app.geonames.quizapp
+package com.dogan.android.app.quizapp.activities
 
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
+import com.dogan.android.app.geonames.quizapp.R
 
 class SplashActivity : AppCompatActivity()
 {

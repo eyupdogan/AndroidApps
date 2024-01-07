@@ -1,4 +1,4 @@
-package com.dogan.android.app.geonames.quizapp
+package com.dogan.android.app.quizapp
 
 import org.junit.Test
 
