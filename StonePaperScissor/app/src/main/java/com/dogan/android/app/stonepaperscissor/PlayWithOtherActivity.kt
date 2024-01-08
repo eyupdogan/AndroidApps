@@ -1,9 +1,14 @@
 package com.dogan.android.app.stonepaperscissor
 
+import android.app.Dialog
+import android.content.Intent
 import android.graphics.drawable.AnimationDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
 import com.dogan.android.app.stonepaperscissor.databinding.ActivityPlayWithOtherBinding
 
 class PlayWithOtherActivity : AppCompatActivity()
@@ -13,6 +18,9 @@ class PlayWithOtherActivity : AppCompatActivity()
     private var animation1:AnimationDrawable? = null
     private var animation2:AnimationDrawable? = null
     private var setTime:CountDownTimer? = null
+
+    private var playerName1 = "Player1"
+    private var playerName2 = "Player2"
 
     private var player1Ready:Boolean = false
     private var player2Ready:Boolean = false
@@ -29,6 +37,8 @@ class PlayWithOtherActivity : AppCompatActivity()
         super.onCreate(savedInstanceState)
         binding = ActivityPlayWithOtherBinding.inflate(layoutInflater)
         setContentView(binding?.root)
+
+        getPlayersName()
 
         binding?.btnP2Rock?.setOnClickListener {
             onPlayP2("rock")
@@ -82,6 +92,7 @@ class PlayWithOtherActivity : AppCompatActivity()
                 binding?.ivIconP2?.setBackgroundResource(0)
                 setSelectedIcon()
                 setScore()
+                endGame()
             }
         }.start()
     }
@@ -143,6 +154,7 @@ class PlayWithOtherActivity : AppCompatActivity()
 
     private fun setScore()
     {
+
         if (getResult()=="tie")
         {
             binding?.tvP1Status?.text = "Tie"
@@ -168,6 +180,48 @@ class PlayWithOtherActivity : AppCompatActivity()
         }
     }
 
+
+    private fun getPlayersName()
+    {
+        val nameDialog = Dialog(this)
+        nameDialog.setContentView(R.layout.player_name_dialog)
+        nameDialog.findViewById<Button>(R.id.btnOk).setOnClickListener {
+            val name1 = nameDialog.findViewById<EditText>(R.id.et_name1).text
+            val name2 = nameDialog.findViewById<EditText>(R.id.et_name2).text
+
+            if (name1.isNotEmpty() && name2.isNotEmpty()){
+                playerName1 = name1.toString()
+                playerName2 = name2.toString()
+                binding?.playerName1?.text = playerName1
+                binding?.playerName2?.text = playerName2
+                nameDialog.cancel()
+            }else{
+                Toast.makeText(this, "Enter both players name", Toast.LENGTH_SHORT).show()
+            }
+        }
+        nameDialog.show()
+    }
+
+    private fun endGame()
+    {
+        var winner = if (scoreP1 == 3)
+            playerName1
+        else
+            playerName2
+        if (scoreP1 == 3 || scoreP2 == 3){
+            Intent(this, FinishActivity::class.java).apply {
+                putExtra("name", winner)
+                startActivity(this)
+            }
+            finish()
+        }
+    }
+
+    override fun onBackPressed()
+    {
+        super.onBackPressed()
+        finish()
+    }
     override fun onDestroy()
     {
         super.onDestroy()
