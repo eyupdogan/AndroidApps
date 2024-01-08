@@ -22,7 +22,9 @@ class MainActivity : AppCompatActivity()
 
         val btnPlayWithComputer = findViewById<Button>(R.id.btnPlayWithComputer)
         btnPlayWithComputer.setOnClickListener {
-
+            Intent(this, PlayWithComputerActivity::class.java).apply {
+                startActivity(this)
+            }
         }
 
         val tvInstruction = findViewById<TextView>(R.id.tvInstruction)
