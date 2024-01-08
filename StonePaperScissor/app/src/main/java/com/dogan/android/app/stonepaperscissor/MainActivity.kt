@@ -1,5 +1,6 @@
 package com.dogan.android.app.stonepaperscissor
 
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,7 +30,18 @@ class MainActivity : AppCompatActivity()
 
         val tvInstruction = findViewById<TextView>(R.id.tvInstruction)
         tvInstruction.setOnClickListener {
+            showInstructions()
 
         }
+    }
+
+    private fun showInstructions()
+    {
+        val instDialog = Dialog(this)
+        instDialog.setContentView(R.layout.instruction_dialog)
+        instDialog.findViewById<Button>(R.id.btnOk).setOnClickListener {
+            instDialog.cancel()
+        }
+        instDialog.show()
     }
 }
