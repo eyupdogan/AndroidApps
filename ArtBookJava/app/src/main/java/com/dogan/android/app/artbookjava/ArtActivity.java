@@ -11,7 +11,11 @@ import androidx.core.content.ContextCompat;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
@@ -31,6 +35,7 @@ public class ArtActivity extends AppCompatActivity {
     ActivityResultLauncher<Intent> activityResultLauncher;
     ActivityResultLauncher<String> permissionLauncher;
     Bitmap selectedImage;
+    SQLiteDatabase database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +45,47 @@ public class ArtActivity extends AppCompatActivity {
         setContentView(view);
 
         registerLauncher();
+
+        database = this.openOrCreateDatabase("Arts", MODE_PRIVATE, null);
+
+        Intent intent = getIntent();
+        String info = intent.getStringExtra("info");
+
+        if (info.equals("new")){
+            binding.nameText.setText("");
+            binding.artistNameText.setText("");
+            binding.yearText.setText("");
+            binding.button.setVisibility(View.VISIBLE);
+            binding.imageView.setImageResource(R.drawable.select);
+        }else {
+            int artId = intent.getIntExtra("artId", 0);
+            binding.button.setVisibility(View.INVISIBLE);
+
+            try {
+
+                Cursor cursor = database.rawQuery("SELECT * FROM arts WHERE id = ?", new String[] {String.valueOf(artId)});
+                int artNameIndex = cursor.getColumnIndex("artname");
+                int painterNameIndex = cursor.getColumnIndex("paintername");
+                int yearIndex = cursor.getColumnIndex("year");
+                int imageIndex = cursor.getColumnIndex("image");
+
+                while (cursor.moveToNext()){
+                    binding.nameText.setText(cursor.getString(artNameIndex));
+                    binding.artistNameText.setText(cursor.getString(painterNameIndex));
+                    binding.yearText.setText(cursor.getString(yearIndex));
+
+                    byte[] bytes = cursor.getBlob(imageIndex);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                    binding.imageView.setImageBitmap(bitmap);
+                }
+
+                cursor.close();
+
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+
+        }
     }
 
     public void save(View view) {
@@ -53,19 +99,36 @@ public class ArtActivity extends AppCompatActivity {
         smallImage.compress(Bitmap.CompressFormat.PNG, 50, outputStream);
         byte[] byteArray = outputStream.toByteArray();
 
+        try {
+
+            database.execSQL("CREATE TABLE IF NOT EXISTS arts(id INTEGER PRIMARY KEY, artname VARCHAR, paintername VARCHAR, year VARCHAR, image BLOB)");
+            String sqlString = "INSERT INTO arts(artname, paintername, year, image) VALUES(?, ?, ?, ?)";
+            SQLiteStatement sqLiteStatement = database.compileStatement(sqlString);
+            sqLiteStatement.bindString(1, name);
+            sqLiteStatement.bindString(2, artistName);
+            sqLiteStatement.bindString(3, year);
+            sqLiteStatement.bindBlob(4, byteArray);
+            sqLiteStatement.execute();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Intent intent = new Intent(ArtActivity.this, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        startActivity(intent);
     }
 
-    public Bitmap makeSmallerImage(Bitmap image, int maximumSize)
-    {
+    public Bitmap makeSmallerImage(Bitmap image, int maximumSize) {
         int width = image.getWidth();
         int height = image.getHeight();
 
         float bitmapRatio = (float) width / (float) height;
 
-        if (bitmapRatio > 1){
+        if (bitmapRatio > 1) {
             width = maximumSize;
             height = (int) (width / bitmapRatio);
-        }else {
+        } else {
             height = maximumSize;
             width = (int) (height * bitmapRatio);
         }
