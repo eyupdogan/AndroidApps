@@ -23,6 +23,8 @@ import android.widget.Toast;
 import com.dogan.android.app.artbookjava.databinding.ActivityArtBinding;
 import com.google.android.material.snackbar.Snackbar;
 
+import java.io.ByteArrayOutputStream;
+
 public class ArtActivity extends AppCompatActivity {
 
     private ActivityArtBinding binding;
@@ -41,7 +43,33 @@ public class ArtActivity extends AppCompatActivity {
     }
 
     public void save(View view) {
+        String name = binding.nameText.getText().toString();
+        String artistName = binding.artistNameText.getText().toString();
+        String year = binding.yearText.getText().toString();
 
+        Bitmap smallImage = makeSmallerImage(selectedImage, 300);
+
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        smallImage.compress(Bitmap.CompressFormat.PNG, 50, outputStream);
+        byte[] byteArray = outputStream.toByteArray();
+
+    }
+
+    public Bitmap makeSmallerImage(Bitmap image, int maximumSize)
+    {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        float bitmapRatio = (float) width / (float) height;
+
+        if (bitmapRatio > 1){
+            width = maximumSize;
+            height = (int) (width / bitmapRatio);
+        }else {
+            height = maximumSize;
+            width = (int) (height * bitmapRatio);
+        }
+        return Bitmap.createScaledBitmap(image, width, height, true);
     }
 
     public void selectImage(View view) {
