@@ -10,6 +10,8 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity()
 {
@@ -41,6 +43,7 @@ class MainActivity : AppCompatActivity()
         addTimeTv.setOnClickListener {
             addExtraTime()
         }
+
     }
 
     private fun addExtraTime()
